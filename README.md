@@ -12,6 +12,8 @@ regions for backgrounds, windows, and UI overlays.
 On modern displays and emulators, those same pixels render as bright white,
 which was never the intended look and can be visually jarring.
 
+I specifically created this shader to use on my TrimUI Brick with NextUI.
+
 
 Gameboy (Zelda's Adventure)
 Without and With Shader - Native
