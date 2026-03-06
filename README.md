@@ -2,6 +2,8 @@
 
 **PT SkyWalker541 restores the original appearance by detecting bright/white pixels and blending them toward a procedurally generated backing texture, putting the transparency back where it belongs.**
 
+Please take a look at the [PT_SkyWalker541 Shader README](https://github.com/SkyWalker541/PT-SkyWalker541-Low-GPU-Cost-Pixel-Transparency-Shader/blob/main/PT_Skywalker541%20Shader%20README.md) for full instructions and customization.
+
 On original Game Boy, GBC, and GBA hardware, screen pixels that were fully
 off did not display as white — the display had no backlight driving those
 areas, so they appeared as the physical backing material showing through:
