@@ -300,5 +300,3 @@ Change any value here to set a new default. These values are used when the shade
 ---
 
 *PT SkyWalker541 by SkyWalker541 | Written for NextUI*
-
-[PT_SkyWalker541 Shader README](https://github.com/SkyWalker541/PT-SkyWalker541-Low-GPU-Cost-Pixel-Transparency-Shader/blob/main/PT_Skywalker541%20Shader%20README.md)
