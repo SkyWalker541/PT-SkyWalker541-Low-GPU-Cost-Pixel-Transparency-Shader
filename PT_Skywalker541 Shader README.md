@@ -1,4 +1,4 @@
-# PT SkyWalker541 v1.0.9
+# PT SkyWalker541 v1.2.0
 **by SkyWalker541 | Written for NextUI**
 
 ---
@@ -9,14 +9,27 @@ On original Game Boy, Game Boy Color, and Game Boy Advance hardware, pixels that
 
 On modern displays and emulators, those same pixels render as bright white, which was never the intended look. **PT SkyWalker541** restores the original appearance by detecting bright and white pixels and blending them toward a procedurally generated backing texture — putting the transparency back where it belongs.
 
-This is a **standalone shader**. No other shaders are required.
+Both shaders are standalone. No other shaders are required.
+
+---
+
+## Which shader should I use?
+
+| File | Use when |
+|---|---|
+| `PT_SkyWalker541_Aspect.glsl` | Aspect ratio scaling or any non-integer scale mode |
+| `PT_SkyWalker541_Integer.glsl` | Native / integer scaling only |
+
+The difference is in how the pixel border effect works. The Aspect variant uses a sine-wave method that produces a smooth, even grid at any scale. The Integer variant uses a distance-from-center method that produces a sharper, cleaner grid but only looks correct at exact integer scale multiples.
+
+If you are unsure, use the **Aspect** variant — it works correctly at any scale mode including native.
 
 ---
 
 ## Installation
 
-1. Place `PT_SkyWalker541.glsl` and `PT_SkyWalker541.cfg` in your NextUI shaders folder
-2. Load `PT_SkyWalker541.cfg` from the in-game shader menu
+1. Place both `.glsl` files and both `.cfg` files in your NextUI shaders folder
+2. Load the appropriate `.cfg` from the in-game shader menu based on your scale mode
 3. Open shader settings and set **PT_SYSTEM** to match your target system
 4. Apply the recommended core settings for your system (see below)
 
@@ -25,8 +38,6 @@ This is a **standalone shader**. No other shaders are required.
 ## Recommended Core Settings
 
 Before adjusting any shader parameters, configure your emulator core settings to match your target system. These settings work alongside the shader for the best result.
-
-> **All systems:** Set **Screen Scaling** to **Native** to avoid shadow artifacts at non-native resolutions.
 
 ### Game Boy (GB)
 | Setting | Recommended Value |
@@ -64,7 +75,7 @@ Before adjusting any shader parameters, configure your emulator core settings to
 
 ## Shader Parameters
 
-All parameters are accessible from the in-game shader settings menu under **Options > Shaders > Optional Shader Settings**. You can also edit the default values directly in `PT_SkyWalker541.glsl` — each parameter has a `#define` near the top of the file that sets its default.
+All parameters are the same between both shader variants. They are accessible from the in-game shader settings menu. You can also change the default values that load when the shader is first applied — see **Editing Default Values** at the bottom of this section.
 
 ---
 
@@ -80,32 +91,22 @@ This is the most important setting. It configures how aggressively the shader de
 | 2 | GBC | Game Boy Color — no backlight, moderate detection |
 | 3 | GBA | Game Boy Advance — backlit screen, conservative detection |
 
-**Always set this first** before adjusting anything else. The right preset will get you most of the way there out of the box.
-
-To change the default, find this line in `PT_SkyWalker541.glsl`:
-```
-#define PT_SYSTEM  1.0
-```
-Change `1.0` to `2.0` for GBC or `3.0` for GBA.
+**Always set this first** before adjusting anything else.
 
 ---
 
 ### Detection Sensitivity — `PT_SENSITIVITY`
 **Default: 0.85 | Range: 0.10 – 1.00 | Only active when PT_SYSTEM = 0 (Manual)**
 
-Controls how aggressively the shader detects white pixels when in Manual mode. Has no effect when using a system preset (GB, GBC, or GBA).
+Controls how aggressively the shader detects white pixels when in Manual mode. Has no effect when using a system preset.
 
 - **Higher values** (closer to 1.0) — only very obvious, clearly white pixels go transparent
 - **Lower values** (closer to 0.10) — more pixels are treated as white and go transparent
-
-Use this if the system presets aren't working well for your specific game, particularly if you are using GB colorization.
 
 ---
 
 ### Transparency Mode — `PT_PIXEL_MODE`
 **Default: 0 (White only)**
-
-Selects which pixels become transparent.
 
 | Value | Mode | Description |
 |---|---|---|
@@ -113,26 +114,24 @@ Selects which pixels become transparent.
 | 1 | Bright | Brighter pixels become proportionally more transparent |
 | 2 | All | Every pixel blends toward the backing texture |
 
-**Mode 0 is recommended** for the most accurate look. Modes 1 and 2 are more stylistic choices.
+**Mode 0 is recommended** for the most accurate look.
 
 ---
 
 ### Base Transparency — `PT_BASE_ALPHA`
 **Default: 0.20 | Range: 0.00 – 1.00**
 
-Controls how transparent detected pixels become. Think of this as the base strength of the effect.
+Controls how transparent detected pixels become.
 
 - **Lower values** — pixels become only slightly see-through
 - **Higher values** — pixels become more transparent, letting more of the backing texture show through
-
-Works together with **PT_WHITE_TRANSPARENCY** for detected white pixels.
 
 ---
 
 ### White Pixel Transparency Boost — `PT_WHITE_TRANSPARENCY`
 **Default: 0.50 | Range: 0.00 – 1.00**
 
-Sets a minimum transparency level specifically for pixels detected as white. Ensures that clearly white pixels are always at least this transparent, even if the base calculation would give a lower value.
+Sets a minimum transparency level specifically for pixels detected as white. Ensures clearly white pixels are always at least this transparent.
 
 - **Lower values** — white pixels blend in closer to other transparent pixels
 - **Higher values** — white pixels go more transparent than other bright pixels
@@ -142,21 +141,15 @@ Sets a minimum transparency level specifically for pixels detected as white. Ens
 ### Brightness Mode — `PT_BRIGHTNESS_MODE`
 **Default: 1 (Perceptual)**
 
-Controls how the shader measures pixel brightness when deciding how transparent a pixel should be.
-
 | Value | Mode | Best for |
 |---|---|---|
 | 0 | Simple | Equal average of R, G, B channels — good for GB/GBC |
-| 1 | Perceptual | Human vision weighted (ITU-R BT.709) — good for GBA and colour content |
-
-Most users won't need to change this. Perceptual mode is the default as it produces more natural results across all systems.
+| 1 | Perceptual | Human vision weighted — good for GBA and colour content |
 
 ---
 
 ### Background Tint — `PT_PALETTE`
 **Default: 1 (Pocket)**
-
-Selects the colour of the procedural backing texture that shows through transparent pixels. This simulates different types of screen backing material.
 
 | Value | Tint | Description |
 |---|---|---|
@@ -172,96 +165,81 @@ Selects the colour of the procedural backing texture that shows through transpar
 
 Controls how strongly the chosen tint colour is applied to the backing texture.
 
-- **Lower values** — the backing texture stays closer to neutral grey
-- **Higher values** — the tint colour becomes more prominent
-
 ---
 
 ### Color Harshness Filter — `PT_DARK_FILTER_LEVEL`
 **Default: 10 | Range: 0 – 100**
 
-Softens overly vivid or harsh dark colours. Useful for GBC games with very aggressive colour palettes that can look unnaturally saturated on modern displays.
+Softens overly vivid or harsh dark colours. Useful for GBC games with very aggressive colour palettes.
 
-- **0** — filter disabled, colours are unchanged
+- **0** — filter disabled
 - **Higher values** — progressively softer, darker colours are toned down more
 
-> Set your core's Dark Filter Level to 0 and use this parameter instead — running both will double the effect.
+> Set your core's Dark Filter Level to 0 and use this parameter instead.
 
 ---
 
 ### Pixel Border — `PT_PIXEL_BORDER`
 **Default: 1 (Subtle)**
 
-Simulates the thin physical gap between individual LCD dots on original hardware, making each pixel visually distinct. This is what gives the image that characteristic "you can see individual pixels" look of original handhelds.
+Simulates the thin physical gap between individual LCD dots on original hardware. The Aspect and Integer variants use different methods to draw the border, each optimised for their respective scale modes.
+
+> **Integer variant tip:** At native/integer scaling the pixel grid is particularly sharp and satisfying. Consider increasing to mode 2 or 3 for a more visible grid effect.
 
 | Value | Style | Description |
 |---|---|---|
 | 0 | OFF | No pixel border effect |
-| 1 | Subtle | Closest to original GB/GBC/GBA hardware appearance |
-| 2 | Moderate | More visible borders — personal preference |
+| 1 | Subtle | Closest to original hardware appearance |
+| 2 | Moderate | More visible borders |
 | 3 | Strong | Clearly defined pixel grid |
 
 ---
 
 ### Shadow X Offset — `PT_SHADOW_OFFSET_X`
-**Default: 1.5 | Range: -30.0 – 30.0**
+**Default: 1.0 | Range: -30.0 – 30.0**
 
-Controls how far the drop shadow shifts horizontally. Positive values push the shadow to the left, negative values to the right. Drop shadows appear behind solid pixels and are visible through transparent areas, adding depth to sprites and text.
+Controls how far the drop shadow shifts horizontally. Drop shadows appear behind solid pixels and are visible through transparent areas, adding depth to sprites and text. Default of 1.0 is the smallest visible diagonal shift — closest to a period-authentic look.
 
 ---
 
 ### Shadow Y Offset — `PT_SHADOW_OFFSET_Y`
-**Default: 1.5 | Range: -30.0 – 30.0**
+**Default: 1.0 | Range: -30.0 – 30.0**
 
-Controls how far the drop shadow shifts vertically. Positive values push the shadow upward, negative values downward.
+Controls how far the drop shadow shifts vertically.
 
 ---
 
 ### Shadow Opacity — `PT_SHADOW_OPACITY`
-**Default: 0.50 | Range: 0.00 – 1.00**
-
-Controls how dark and visible the drop shadow is.
+**Default: 0.30 | Range: 0.00 – 1.00**
 
 - **0** — shadow disabled
 - **Higher values** — darker, more prominent shadow
 
 ---
 
-### Shadow Blur — `PT_SHADOW_BLUR`
-**Default: 1.0 | Range: 0.0 – 5.0**
-
-Controls how soft and spread out the shadow edges are. The blur uses a weighted pattern that is strongest at the shadow source and fades outward, matching the natural look of original hardware passive LCD shadows.
-
-- **Lower values** — sharper, harder shadow edge
-- **Higher values** — softer, more spread out shadow
-
----
-
 ### Chromatic Shift — `PT_CHROMA`
 **Default: 0.20 | Range: 0.00 – 1.00**
 
-Simulates the slight colour channel misalignment characteristic of original GB/GBC/GBA LCD panels, where the red and blue channels were not perfectly spatially aligned. Gives the image a subtle organic quality.
+Simulates the slight colour channel misalignment of original GB/GBC/GBA LCD panels. Most visible on bright colours near screen edges.
 
-- **0** — disabled, perfectly aligned colour channels
-- **Higher values** — more pronounced colour separation toward screen edges
-
-This effect is most visible on bright colours near the edges of the screen.
+- **0** — disabled
+- **Higher values** — more pronounced colour separation
 
 ---
 
 ### Vignette — `PT_VIGNETTE`
-**Default: 0.12 | Range: 0.00 – 1.00**
+**Default: 0.08 | Range: 0.00 – 1.00**
 
-Darkens the screen toward the edges and corners, simulating the uneven light distribution of original handheld screens and their physical bezels.
+Darkens the screen toward the edges and corners, simulating the uneven light distribution of original handheld screens. Default of 0.08 sits below the threshold of conscious perception — you feel it more than see it.
 
-- **0** — disabled, uniform brightness across the screen
-- **Higher values** — more pronounced darkening toward the corners
+- **0** — disabled
+- **Higher values** — more pronounced darkening toward corners
 
 ---
 
 ## Editing Default Values
 
-Every parameter has a default value defined near the top of `PT_SkyWalker541.glsl`. Look for the block that starts with `#else` after the `#ifdef PARAMETER_UNIFORM` section. It looks like this:
+To change a default value, open either `.glsl` file in any text editor and find the block near the top that looks like this:
 
 ```glsl
 #define PT_SYSTEM             1.0
@@ -269,16 +247,27 @@ Every parameter has a default value defined near the top of `PT_SkyWalker541.gls
 #define PT_PIXEL_MODE         0.0
 #define PT_BASE_ALPHA         0.20
 #define PT_WHITE_TRANSPARENCY 0.50
-...
+#define PT_BRIGHTNESS_MODE    1.0
+#define PT_PALETTE            1.0
+#define PT_PALETTE_INTENSITY  1.0
+#define PT_DARK_FILTER_LEVEL  10.0
+#define PT_PIXEL_BORDER       1.0
+#define PT_SHADOW_OFFSET_X    1.0
+#define PT_SHADOW_OFFSET_Y    1.0
+#define PT_SHADOW_OPACITY     0.30
+#define PT_CHROMA             0.20
+#define PT_VIGNETTE           0.08
 ```
 
-Change any value here to set a new default. These values are used when the shader is first loaded, and can still be overridden from the in-game settings menu at any time.
+Change the number on the right side of any line to set a new default. These values load when the shader first applies and can still be overridden from the in-game settings menu at any time.
 
 ---
 
-## Known Limitations
+## Compatibility
 
-- **OrigTexture** is not yet supported in NextUI. White detection currently runs against the post-processed image rather than the raw game frame. Per-system thresholds are pre-compensated to account for this. A future update will take advantage of OrigTexture support when it becomes available in NextUI, which will improve detection accuracy significantly.
+Both shaders work on any device and any resolution. Shadow offsets and pixel borders are calculated using proven coordinate methods that work correctly on NextUI regardless of device or display resolution.
+
+**Note:** White detection runs against the post-processed texture rather than the raw game frame. Per-system thresholds are pre-compensated to account for this. When NextUI adds support for OrigTexture as a separate pass, the shaders will be updated to take advantage of it for improved detection accuracy.
 
 ---
 
@@ -286,8 +275,16 @@ Change any value here to set a new default. These values are used when the shade
 
 | Version | Notes |
 |---|---|
-| v1.0.9 | Fixed PT_PIXEL_BORDER modes 2 and 3 — each mode now correctly increases both border width and darkness. PT_VIGNETTE default lowered to 0.12 |
-| v1.0.8 | Replaced sin()-based noise hash with arithmetic hash — significant speedup on PowerVR GPUs |
+| v1.2.0 | Updated defaults to period-authentic values — shadow offset 1.5→1.0, shadow opacity 0.50→0.30, vignette 0.12→0.08. Verified on 1024x768, applicable at any resolution |
+| v1.1.6 | Removed shadow blur entirely — PT_SHADOW_BLUR parameter removed. Shadow is now a single texture tap. At GB/GBC/GBA pixel scales, blur is imperceptible at any typical display resolution |
+| v1.1.5 | Replaced 4-tap cross shadow blur with 2-tap diagonal blur — halves texture fetch cost on transparent pixels with no meaningful change to shadow appearance |
+| v1.1.4 | Fixed Aspect pixel border — wfactor multipliers were inverted, producing near-invisible borders. Subtle/Moderate/Strong now produce 17%/41%/76% darkening, matching Integer in visual impact |
+| v1.1.3 | Fixed shadow performance — blur tap re-snapping removed, replaced with direct texel-step offsets. Eliminates the slowdown introduced in v1.1.1 |
+| v1.1.2 | Fixed Aspect pixel border — fract() applied before sine argument to prevent mediump precision loss on PowerVR. Fixed shadows in both shaders — removed white-pixel gate that blocked shadows inside large white fills like textboxes |
+| v1.1.1 | Fixed drop shadows — all shadow and blur taps now snap to texel centre, matching the main sample. Fixed Aspect pixel border — sine-wave wfactor values corrected so all three modes produce a clearly visible grid |
+| v1.1.0 | Split into Aspect and Integer variants. Pixel border and shadow methods rewritten using proven NextUI coordinate approach — works correctly at any resolution and scale mode |
+| v1.0.9 | Fixed PT_PIXEL_BORDER modes 2 and 3. PT_VIGNETTE default lowered to 0.12 |
+| v1.0.8 | Replaced sin()-based noise hash — significant speedup on PowerVR GPUs |
 | v1.0.7 | Chromatic shift rewritten as pure math — fixes pink tint, eliminates slowdown |
 | v1.0.6 | Replaced subpixel fringing with chromatic shift — eliminates slowdown |
 | v1.0.5 | Added chromatic shift and vignette |
