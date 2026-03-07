@@ -1,5 +1,5 @@
 /*
-    PT SkyWalker541  v1.0.8
+    PT SkyWalker541  v1.0.9
     by SkyWalker541  |  Written for NextUI
     File: PT_SkyWalker541.glsl
 
@@ -59,6 +59,12 @@
     ========================
     CHANGELOG
     ========================
+    v1.0.9 - SkyWalker541
+         - Fixed PT_PIXEL_BORDER modes 2 and 3 — each mode now correctly
+           increases both border width and darkness independently
+         - PT_VIGNETTE default lowered from 0.25 to 0.12 for a more
+           subtle, authentic corner darkening out of the box
+
     v1.0.8 - SkyWalker541
          - Replaced sin()-based noise hash with arithmetic multiply/fract hash
            Eliminates 8 sin() calls per pixel — significant speedup on PowerVR
@@ -124,7 +130,7 @@
 //   1 = GB      — original Game Boy, no backlight, aggressive transparency
 //   2 = GBC     — Game Boy Color, no backlight, moderate transparency
 //   3 = GBA     — Game Boy Advance, backlit, conservative transparency
-#pragma parameter PT_SYSTEM "== PT SkyWalker541 v1.0.8 == System (0=Manual, 1=GB, 2=GBC, 3=GBA)" 1.0 0.0 3.0 1.0
+#pragma parameter PT_SYSTEM "== PT SkyWalker541 v1.0.9 == System (0=Manual, 1=GB, 2=GBC, 3=GBA)" 1.0 0.0 3.0 1.0
 
 // ========================
 // SENSITIVITY (Manual mode only)
@@ -197,7 +203,7 @@
 // Darkens the screen toward the edges, simulating the uneven light
 // distribution and physical screen bezel of original handheld hardware.
 // Pure math — no extra texture samples. Set to 0 to disable.
-#pragma parameter PT_VIGNETTE "== Vignette strength (0=OFF)" 0.25 0.0 1.0 0.01
+#pragma parameter PT_VIGNETTE "== Vignette strength (0=OFF)" 0.12 0.0 1.0 0.01
 
 // ========================
 // DROP SHADOWS
@@ -344,7 +350,7 @@ uniform COMPAT_PRECISION float PT_VIGNETTE;
 #define PT_SHADOW_OPACITY     0.5
 #define PT_SHADOW_BLUR        1.0
 #define PT_CHROMA             0.20
-#define PT_VIGNETTE           0.25
+#define PT_VIGNETTE           0.12
 #endif
 
 // Perceptual luma weights — ITU-R BT.709
@@ -476,26 +482,30 @@ vec3 huePreservingBlend(vec3 src, vec3 bg, float alpha)
 // Computes how far the current fragment sits from the center of its logical
 // pixel in texture space. Pixels near their edges are darkened to simulate
 // the thin physical gap between LCD dots on original hardware.
-// Strength levels are tuned to match subtle/moderate/strong hardware looks.
+// Each mode increases both the sharpness of the border and its darkness.
 // -----------------------------------------------------------------------------
 float pixelBorderFactor(vec2 coord)
 {
     if (PT_PIXEL_BORDER < 0.5) return 1.0;
 
-    // Position within the current logical pixel (0.0 = edge, 1.0 = center)
-    vec2 pixelPos  = fract(coord * InputSize);
-    vec2 centered  = abs(pixelPos - 0.5) * 2.0; // 0 at center, 1 at edge
-    float edge     = max(centered.x, centered.y);
+    // Position within the current logical pixel (0.0 = center, 1.0 = edge)
+    vec2 pixelPos = fract(coord * InputSize);
+    vec2 centered = abs(pixelPos - 0.5) * 2.0;
+    float edge    = max(centered.x, centered.y);
 
-    // Resolve border sharpness by mode
-    float sharpness;
-    if      (PT_PIXEL_BORDER < 1.5) sharpness = 0.60; // Subtle
-    else if (PT_PIXEL_BORDER < 2.5) sharpness = 0.78; // Moderate
-    else                            sharpness = 0.90; // Strong
+    // Each mode: sharpness controls where darkening starts,
+    // strength controls how dark the border gets at maximum
+    float sharpness, strength;
+    if (PT_PIXEL_BORDER < 1.5) {
+        sharpness = 0.70; strength = 0.40; // Subtle
+    } else if (PT_PIXEL_BORDER < 2.5) {
+        sharpness = 0.60; strength = 0.65; // Moderate — wider band, darker
+    } else {
+        sharpness = 0.50; strength = 0.85; // Strong — widest band, darkest
+    }
 
-    // Smoothly darken toward edges beyond the sharpness threshold
     float border = smoothstep(sharpness, 1.0, edge);
-    return 1.0 - border * 0.55;
+    return 1.0 - border * strength;
 }
 
 // -----------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-# PT SkyWalker541 v1.0.8
+# PT SkyWalker541 v1.0.9
 **by SkyWalker541 | Written for NextUI**
 
 ---
@@ -250,7 +250,7 @@ This effect is most visible on bright colours near the edges of the screen.
 ---
 
 ### Vignette — `PT_VIGNETTE`
-**Default: 0.25 | Range: 0.00 – 1.00**
+**Default: 0.12 | Range: 0.00 – 1.00**
 
 Darkens the screen toward the edges and corners, simulating the uneven light distribution of original handheld screens and their physical bezels.
 
@@ -286,6 +286,7 @@ Change any value here to set a new default. These values are used when the shade
 
 | Version | Notes |
 |---|---|
+| v1.0.9 | Fixed PT_PIXEL_BORDER modes 2 and 3 — each mode now correctly increases both border width and darkness. PT_VIGNETTE default lowered to 0.12 |
 | v1.0.8 | Replaced sin()-based noise hash with arithmetic hash — significant speedup on PowerVR GPUs |
 | v1.0.7 | Chromatic shift rewritten as pure math — fixes pink tint, eliminates slowdown |
 | v1.0.6 | Replaced subpixel fringing with chromatic shift — eliminates slowdown |
@@ -299,3 +300,5 @@ Change any value here to set a new default. These values are used when the shade
 ---
 
 *PT SkyWalker541 by SkyWalker541 | Written for NextUI*
+
+[PT_SkyWalker541 Shader README](https://github.com/SkyWalker541/PT-SkyWalker541-Low-GPU-Cost-Pixel-Transparency-Shader/blob/main/PT_Skywalker541%20Shader%20README.md)
