@@ -1,15 +1,131 @@
-# PT SkyWalker541 v1.2.0
-**by SkyWalker541 | Written for NextUI**
+# PT SkyWalker541
+### Low GPU Cost Pixel Transparency Shader for NextUI
+**by SkyWalker541 | v1.2.2**
 
 ---
 
-## What is this?
-
-On original Game Boy, Game Boy Color, and Game Boy Advance hardware, pixels that were fully off didn't show as white. Because those screens had no backlight driving those areas, the physical backing material of the screen showed through instead — a subtle grey-green translucency rather than solid white. Game developers of that era designed around this, using "white" areas as intentional transparent zones for backgrounds, windows, and UI overlays.
+On original Game Boy, Game Boy Color, and Game Boy Advance hardware, pixels that were fully off didn't show as white. Because those screens had no backlight driving those areas, the physical backing material showed through instead — a subtle grey-green translucency rather than solid white. Game developers of that era designed around this, using "white" areas as intentional transparent zones for backgrounds, windows, and UI overlays.
 
 On modern displays and emulators, those same pixels render as bright white, which was never the intended look. **PT SkyWalker541** restores the original appearance by detecting bright and white pixels and blending them toward a procedurally generated backing texture — putting the transparency back where it belongs.
 
-Both shaders are standalone. No other shaders are required.
+Both shaders are standalone. No other shaders or passes are required.
+
+---
+
+## Before & After
+
+> All screenshots taken on TrimUI Brick running NextUI with `PT_SkyWalker541_Aspect.glsl` using aspect ratio scaling.
+
+---
+
+### Game Boy — Gargoyle's Quest *(Capcom, 1990)*
+
+| Without Shader | With Shader |
+|:---:|:---:|
+| ![Gargoyle's Quest without shader](https://github.com/SkyWalker541/PT-SkyWalker541-Low-GPU-Cost-Pixel-Transparency-Shader/blob/main/Sample%20Screenshots/Gargoyle's%20Quest.2026-03-07-12-05-31.png) | ![Gargoyle's Quest with shader](https://github.com/SkyWalker541/PT-SkyWalker541-Low-GPU-Cost-Pixel-Transparency-Shader/blob/main/Sample%20Screenshots/Gargoyle's%20Quest.2026-03-07-12-05-19.png) |
+
+<details>
+<summary>Settings used</summary>
+
+**Device Settings**
+| Setting | Value |
+|---|---|
+| Scale mode | Aspect |
+| Screen effect | None |
+| Color correction | Disabled |
+| Frontlight position | Central |
+| Dark filter level | 0 |
+| Interframe blending | Disabled |
+| GB Colorization | Disabled |
+
+**Shader Parameters**
+| Parameter | Value |
+|---|---|
+| PT_SYSTEM | 1 (GB) |
+| PT_PIXEL_MODE | 0 (White only) |
+| PT_PALETTE | 1 (Pocket) |
+| PT_PIXEL_BORDER | 1 (Subtle) |
+| PT_DARK_FILTER_LEVEL | 10 |
+| PT_SHADOW_OFFSET_X | 1.0 |
+| PT_SHADOW_OFFSET_Y | 1.0 |
+| PT_SHADOW_OPACITY | 0.30 |
+| PT_VIGNETTE | 0.08 |
+| All others | Default |
+
+</details>
+
+---
+
+### Game Boy Color — Dragon Warrior Monsters *(Enix, 1998)*
+
+| Without Shader | With Shader |
+|:---:|:---:|
+| ![Dragon Warrior Monsters without shader](https://github.com/SkyWalker541/PT-SkyWalker541-Low-GPU-Cost-Pixel-Transparency-Shader/blob/main/Sample%20Screenshots/Dragon%20Warrior%20Monsters.2026-03-07-12-09-02.png) | ![Dragon Warrior Monsters with shader](https://github.com/SkyWalker541/PT-SkyWalker541-Low-GPU-Cost-Pixel-Transparency-Shader/blob/main/Sample%20Screenshots/Dragon%20Warrior%20Monsters.2026-03-07-12-08-55.png) |
+
+<details>
+<summary>Settings used</summary>
+
+**Device Settings**
+| Setting | Value |
+|---|---|
+| Scale mode | Aspect |
+| Screen effect | None |
+| Color correction | GBC Only |
+| Frontlight position | Central |
+| Dark filter level | 0 |
+| Interframe blending | Disabled |
+
+**Shader Parameters**
+| Parameter | Value |
+|---|---|
+| PT_SYSTEM | 2 (GBC) |
+| PT_PIXEL_MODE | 0 (White only) |
+| PT_PALETTE | 1 (Pocket) |
+| PT_PIXEL_BORDER | 1 (Subtle) |
+| PT_DARK_FILTER_LEVEL | 10 |
+| PT_SHADOW_OFFSET_X | 1.0 |
+| PT_SHADOW_OFFSET_Y | 1.0 |
+| PT_SHADOW_OPACITY | 0.30 |
+| PT_VIGNETTE | 0.08 |
+| All others | Default |
+
+</details>
+
+---
+
+### Game Boy Advance — Castlevania: Aria of Sorrow *(Konami, 2003)*
+
+| Without Shader | With Shader |
+|:---:|:---:|
+| ![Aria of Sorrow without shader](https://github.com/SkyWalker541/PT-SkyWalker541-Low-GPU-Cost-Pixel-Transparency-Shader/blob/main/Sample%20Screenshots/Castlevania%20-%20Aria%20of%20Sorrow.2026-03-07-12-12-12.png) | ![Aria of Sorrow with shader](https://github.com/SkyWalker541/PT-SkyWalker541-Low-GPU-Cost-Pixel-Transparency-Shader/blob/main/Sample%20Screenshots/Castlevania%20-%20Aria%20of%20Sorrow.2026-03-07-12-12-02.png) |
+
+<details>
+<summary>Settings used</summary>
+
+**Device Settings**
+| Setting | Value |
+|---|---|
+| Scale mode | Aspect |
+| Screen effect | None |
+| Color correction | Enabled |
+| Interframe blending | Enabled |
+
+**Shader Parameters**
+| Parameter | Value |
+|---|---|
+| PT_SYSTEM | 3 (GBA) |
+| PT_PIXEL_MODE | 0 (White only) |
+| PT_PALETTE | 3 (White) |
+| PT_PIXEL_BORDER | 1 (Subtle) |
+| PT_DARK_FILTER_LEVEL | 0 |
+| PT_BRIGHTNESS_MODE | 1 (Perceptual) |
+| PT_SHADOW_OFFSET_X | 1.0 |
+| PT_SHADOW_OFFSET_Y | 1.0 |
+| PT_SHADOW_OPACITY | 0.30 |
+| PT_VIGNETTE | 0.08 |
+| All others | Default |
+
+</details>
 
 ---
 
@@ -156,7 +272,7 @@ Sets a minimum transparency level specifically for pixels detected as white. Ens
 | 0 | OFF | Neutral grey grain |
 | 1 | Pocket | Warm green-grey — approximates the original Game Boy screen backing |
 | 2 | Grey | Neutral grey |
-| 3 | White | Clean white backing |
+| 3 | White | Clean white backing — recommended for GBA |
 
 ---
 
@@ -198,7 +314,7 @@ Simulates the thin physical gap between individual LCD dots on original hardware
 ### Shadow X Offset — `PT_SHADOW_OFFSET_X`
 **Default: 1.0 | Range: -30.0 – 30.0**
 
-Controls how far the drop shadow shifts horizontally. Drop shadows appear behind solid pixels and are visible through transparent areas, adding depth to sprites and text. Default of 1.0 is the smallest visible diagonal shift — closest to a period-authentic look.
+Controls how far the drop shadow shifts horizontally. Drop shadows appear behind solid pixels and are visible through transparent areas, adding subtle depth to sprites and text. Default of 1.0 is the smallest visible diagonal shift — closest to a period-authentic look.
 
 ---
 
@@ -275,13 +391,14 @@ Both shaders work on any device and any resolution. Shadow offsets and pixel bor
 
 | Version | Notes |
 |---|---|
-| v1.2.0 | Updated defaults to period-authentic values — shadow offset 1.5→1.0, shadow opacity 0.50→0.30, vignette 0.12→0.08. Verified on 1024x768, applicable at any resolution |
+| v1.2.2 | Replaced noiseHash with reference shader's cheaper single-pass hash — no visible change to grain quality, lower arithmetic cost per fragment |
+| v1.2.1 | Updated defaults to period-authentic values — shadow offset 1.5→1.0, shadow opacity 0.50→0.30, vignette 0.12→0.08 |
 | v1.1.6 | Removed shadow blur entirely — PT_SHADOW_BLUR parameter removed. Shadow is now a single texture tap. At GB/GBC/GBA pixel scales, blur is imperceptible at any typical display resolution |
 | v1.1.5 | Replaced 4-tap cross shadow blur with 2-tap diagonal blur — halves texture fetch cost on transparent pixels with no meaningful change to shadow appearance |
 | v1.1.4 | Fixed Aspect pixel border — wfactor multipliers were inverted, producing near-invisible borders. Subtle/Moderate/Strong now produce 17%/41%/76% darkening, matching Integer in visual impact |
-| v1.1.3 | Fixed shadow performance — blur tap re-snapping removed, replaced with direct texel-step offsets. Eliminates the slowdown introduced in v1.1.1 |
+| v1.1.3 | Fixed shadow performance — blur tap re-snapping removed, replaced with direct texel-step offsets |
 | v1.1.2 | Fixed Aspect pixel border — fract() applied before sine argument to prevent mediump precision loss on PowerVR. Fixed shadows in both shaders — removed white-pixel gate that blocked shadows inside large white fills like textboxes |
-| v1.1.1 | Fixed drop shadows — all shadow and blur taps now snap to texel centre, matching the main sample. Fixed Aspect pixel border — sine-wave wfactor values corrected so all three modes produce a clearly visible grid |
+| v1.1.1 | Fixed drop shadows — all shadow taps now snap to texel centre. Fixed Aspect pixel border — sine-wave wfactor values corrected so all three modes produce a clearly visible grid |
 | v1.1.0 | Split into Aspect and Integer variants. Pixel border and shadow methods rewritten using proven NextUI coordinate approach — works correctly at any resolution and scale mode |
 | v1.0.9 | Fixed PT_PIXEL_BORDER modes 2 and 3. PT_VIGNETTE default lowered to 0.12 |
 | v1.0.8 | Replaced sin()-based noise hash — significant speedup on PowerVR GPUs |
